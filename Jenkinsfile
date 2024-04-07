@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/main']], userRemoteConfigs: [[url: 'git@github.com:AathiAK/Docker.git']]])
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], userRemoteConfigs: [[url: 'git@github.com:AathiAK/Docker.git',credentialsId: '32ff65a9-283f-47e8-ae2a-d8ea89e747cf']]])
             }
         }
         
