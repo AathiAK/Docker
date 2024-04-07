@@ -1,6 +1,6 @@
 FROM python:3.9-alpine
 
-WORKDIR /app
+WORKDIR /root/Docker
 
 RUN apk update && \
     apk add --no-cache git && \
