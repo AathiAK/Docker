@@ -1,0 +1,66 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_IMAGE = 'aathiak/python_addition'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: '*/main']], userRemoteConfigs: [[url: 'https://github.com/AathiAK/Docker.git',credentialsId: '32ff65a9-283f-47e8-ae2a-d8ea89e747cf']]])
+            }
+        }
+        
+        stage('Delete Existing Container') {
+            steps {
+                script {
+                    try {
+                        sh 'docker stop my-container || true'
+                        sh 'docker rm my-container || true'
+                    } catch (Exception e) {
+                        // Handle exception if required
+                    }
+                }
+            }
+        }
+
+        stage('Delete Existing Image') {
+            steps {
+                script {
+                    try {
+                        sh "docker rmi ${env.DOCKER_IMAGE}:latest || true"
+                    } catch (Exception e) {
+                        // Handle exception if required
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build(env.DOCKER_IMAGE)
+                }
+            }
+        }
+
+        stage('Push Docker Image to Docker Hub') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'caca585d-4c84-4813-ada0-7bf57b997874') {
+                        docker.image(env.DOCKER_IMAGE).push('latest')
+                    }
+                }
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    docker.image(env.DOCKER_IMAGE).run('-p 8000:800 --name my-container -d')
+                }
+            }
+        }
+    }
+}
